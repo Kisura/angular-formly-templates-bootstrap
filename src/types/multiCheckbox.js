@@ -1,10 +1,20 @@
 export default ngModule => {
   ngModule.config(addCheckboxType);
 
-  function addCheckboxType(formlyConfigProvider) {
+  function addCheckboxType(formlyConfigProvider, $interpolateProvider) {
     formlyConfigProvider.setType({
       name: 'multiCheckbox',
-      template: require('./multiCheckbox.html'),
+      template: `<div class="radio-group">
+        <div ng-repeat="(key, option) in to.options" class="checkbox">
+          <label>
+            <input type="checkbox"
+                   id="${$interpolateProvider.startSymbol()}id + '_'+ $index${$interpolateProvider.endSymbol()}"
+                   ng-model="multiCheckbox.checked[$index]"
+                   ng-change="multiCheckbox.change()">
+            ${$interpolateProvider.startSymbol()}option[to.labelProp || 'name']${$interpolateProvider.endSymbol()}
+          </label>
+        </div>
+      </div>`,
       wrapper: ['bootstrapLabel', 'bootstrapHasError'],
       apiCheck: check => ({
         templateOptions: {
@@ -71,7 +81,7 @@ export default ngModule => {
           // Must make sure we mark as touched because only the last checkbox due to a bug in angular.
           $scope.fc.$setTouched();
           checkValidity(true);
-          
+
           if ($scope.to.onChange) {
             $scope.to.onChange();
           }
